@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity,  TextInput,  StyleSheet,  Dimensions,  ScrollView,  FlatList,  Image,  Modal,TouchableWithoutFeedback,Keyboard,Platform} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeInUp, ZoomIn, SlideInDown, SlideOutUp, FadeIn,FadeOut,Layout,LightSpeedInLeft,FlipInXUp, BounceIn,StretchInX,StretchOut,BounceInDown,PinwheelIn} from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInUp, ZoomIn, SlideInDown, SlideOutUp, FadeIn,FadeOut,Layout,LightSpeedInLeft,FlipInXUp, BounceIn,StretchInX,StretchOut,BounceInDown} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -25,8 +25,7 @@ const INITIAL_BOOKS = [
     author: 'Alex Michaelides', 
     category: 'Fiction', 
     status: 'Available',
-    cover: 'https://books.google.co.in/books/publisher/content?id=a6NnDwAAQBAJ&pg=PA1&img=1&zoom=3&hl=en&bul=1&sig=ACfU3U0sd_ARiItXsE4NzgkoT7C5xKacag&w=1280',
-    isFavorite: false
+    cover: 'https://books.google.co.in/books/publisher/content?id=a6NnDwAAQBAJ&pg=PA1&img=1&zoom=3&hl=en&bul=1&sig=ACfU3U0sd_ARiItXsE4NzgkoT7C5xKacag&w=1280'
   },
   { 
     id: '2', 
@@ -34,8 +33,7 @@ const INITIAL_BOOKS = [
     author: 'Yuval Noah Harari', 
     category: 'History', 
     status: 'Borrowed',
-    cover: 'https://m.media-amazon.com/images/I/713jIoMO3UL._AC_UF1000,1000_QL80_.jpg',
-    isFavorite: true
+    cover: 'https://m.media-amazon.com/images/I/713jIoMO3UL._AC_UF1000,1000_QL80_.jpg'
   },
   { 
     id: '3', 
@@ -43,8 +41,7 @@ const INITIAL_BOOKS = [
     author: 'James Clear', 
     category: 'Self-Help', 
     status: 'Available',
-    cover: 'https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg',
-    isFavorite: false
+    cover: 'https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg'
   },
 ];
 
@@ -59,10 +56,9 @@ const MOCK_PROFILE = {
   name: "Anshpreet Singh",
   email: "hakikatsingh099@gmail.com",
   role: "Student",
-  institute: "University of Technology",
-  address: "New Delhi, India",
   booksIssued: 3,
   booksReturned: 4,
+  fines: "₹0",
   avatar: null
 };
 
@@ -169,6 +165,7 @@ const AuthScreen = ({ isLoginMode, onClose, onLoginSuccess }) => {
           <TouchableOpacity 
             style={styles.submitButton} 
             onPress={() => {
+              // Simple validation
               if (form.username && form.password) {
                 onLoginSuccess();
               }
@@ -260,6 +257,7 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
   const [profileData, setProfileData] = useState(user);
   const [tempProfile, setTempProfile] = useState(user);
   
+  // Pick avatar from gallery
   const pickAvatar = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -278,15 +276,10 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
     setEditModalVisible(false);
   };
 
-  const handleFavoritesPress = () => {
-    navigation.navigate('Favorites');
-  };
-
   return (
     <ScrollView style={styles.profileContainer}>
       <Animated.View 
         entering={FadeInDown.duration(500)}
-        layout={Layout.duration(300)}
         style={styles.profileHeader}
       >
         <TouchableOpacity onPress={pickAvatar} style={styles.avatarContainer}>
@@ -341,12 +334,12 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
         
         <View style={styles.infoRow}>
           <Icon name="school" size={20} color="#8898AA" />
-          <Text style={styles.infoText}>{profileData.institute}</Text>
+          <Text style={styles.infoText}>Student at University of Technology</Text>
         </View>
         
         <View style={styles.infoRow}>
           <Icon name="location-on" size={20} color="#8898AA" />
-          <Text style={styles.infoText}>{profileData.address}</Text>
+          <Text style={styles.infoText}>New Delhi, India</Text>
         </View>
       </Animated.View>
 
@@ -364,6 +357,12 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
           <Icon name="check-circle" size={30} color="#2DCE89" />
           <Text style={styles.statNumber}>{profileData.booksReturned}</Text>
           <Text style={styles.statLabel}>Books Returned</Text>
+        </View>
+        
+        <View style={styles.statCard}>
+          <Icon name="payment" size={30} color="#FB6340" />
+          <Text style={styles.statNumber}>{profileData.fines}</Text>
+          <Text style={styles.statLabel}>Pending Fines</Text>
         </View>
       </Animated.View>
 
@@ -389,7 +388,7 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
         
         <TouchableOpacity 
           style={styles.actionButton}
-          onPress={handleFavoritesPress}
+          onPress={() => {}}
         >
           <Icon name="favorite" size={24} color="#5E72E4" />
           <Text style={styles.actionButtonText}>My Favorites</Text>
@@ -404,6 +403,7 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
         </TouchableOpacity>
       </Animated.View>
 
+      {/* Edit Profile Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -459,22 +459,12 @@ const ProfileScreen = ({ user, onLogout, navigation }) => {
                   </View>
                   
                   <View style={styles.modalInputContainer}>
-                    <Text style={styles.modalLabel}>Institute</Text>
+                    <Text style={styles.modalLabel}>Role</Text>
                     <TextInput 
                       style={styles.modalInput}
-                      placeholder="Enter your institute"
-                      value={tempProfile.institute}
-                      onChangeText={text => setTempProfile({...tempProfile, institute: text})}
-                    />
-                  </View>
-                  
-                  <View style={styles.modalInputContainer}>
-                    <Text style={styles.modalLabel}>Address</Text>
-                    <TextInput 
-                      style={styles.modalInput}
-                      placeholder="Enter your address"
-                      value={tempProfile.address}
-                      onChangeText={text => setTempProfile({...tempProfile, address: text})}
+                      placeholder="Enter your role"
+                      value={tempProfile.role}
+                      onChangeText={text => setTempProfile({...tempProfile, role: text})}
                     />
                   </View>
                 </View>
@@ -509,6 +499,10 @@ const FeedbackScreen = ({ navigation }) => {
   
   const handleSubmit = () => {
     setIsSubmitted(true);
+    // In a real app, you would send this to a backend
+    console.log("Feedback submitted:", { feedback, rating });
+    
+    // Reset after 2 seconds
     setTimeout(() => {
       setIsSubmitted(false);
       setFeedback("");
@@ -622,55 +616,7 @@ const FeedbackScreen = ({ navigation }) => {
   );
 };
 
-const FavoritesScreen = ({ books, navigation }) => {
-  const favoriteBooks = books.filter(book => book.isFavorite);
-
-  return (
-    <View style={styles.tabContent}>
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Icon name="search" size={20} color="#777" style={styles.searchIcon} />
-          <TextInput 
-            placeholder="Search favorite books..." 
-            style={styles.searchInput}
-          />
-        </View>
-      </View>
-      
-      <FlatList
-        data={favoriteBooks}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.bookListItem}>
-            <Image source={{ uri: item.cover }} style={styles.listBookCover} />
-            <View style={styles.bookInfo}>
-              <Text style={styles.listBookTitle}>{item.title}</Text>
-              <Text style={styles.listBookAuthor}>{item.author}</Text>
-              <View style={styles.categoryBadge}>
-                <Text style={styles.listBookCategory}>{item.category}</Text>
-              </View>
-            </View>
-            <View style={[
-              styles.listStatusBadge, 
-              { backgroundColor: item.status === 'Available' ? '#2DCE89' : '#FB6340' }
-            ]}>
-              <Text style={styles.listStatusText}>{item.status}</Text>
-            </View>
-          </View>
-        )}
-        contentContainerStyle={styles.bookListContainer}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Icon name="favorite-border" size={50} color="#ccc" />
-            <Text style={styles.emptyText}>No favorite books yet</Text>
-          </View>
-        }
-      />
-    </View>
-  );
-};
-
-const MainScreen = ({ onLogout, navigation }) => {
+const MainScreen = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAddBookModalVisible, setAddBookModalVisible] = useState(false);
   const [isAddCategoryModalVisible, setAddCategoryModalVisible] = useState(false);
@@ -682,14 +628,14 @@ const MainScreen = ({ onLogout, navigation }) => {
     author: '', 
     category: '',
     status: 'Available',
-    cover: null,
-    isFavorite: false
+    cover: null
   });
   const [newCategory, setNewCategory] = useState({ name: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [user, setUser] = useState(MOCK_PROFILE);
   
+  // Filter books based on search and category filter
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           book.author.toLowerCase().includes(searchQuery.toLowerCase());
@@ -697,6 +643,7 @@ const MainScreen = ({ onLogout, navigation }) => {
     return matchesSearch && matchesCategory;
   });
 
+  // Handle adding a new book
   const handleAddBook = () => {
     if (newBook.title && newBook.author && newBook.category) {
       const newBookWithId = {
@@ -705,19 +652,19 @@ const MainScreen = ({ onLogout, navigation }) => {
         cover: newBook.cover || 'https://via.placeholder.com/150x200.png?text=No+Cover'
       };
       
-      setBooks([newBookWithId, ...books]);
+      setBooks([...books, newBookWithId]);
       setAddBookModalVisible(false);
       setNewBook({ 
         title: '', 
         author: '', 
         category: '',
         status: 'Available',
-        cover: null,
-        isFavorite: false
+        cover: null
       });
     }
   };
 
+  // Handle adding a new category
   const handleAddCategory = () => {
     if (newCategory.name) {
       const newCategoryWithId = {
@@ -733,6 +680,7 @@ const MainScreen = ({ onLogout, navigation }) => {
     }
   };
 
+  // Handle selecting a category for filtering
   const handleCategoryFilter = (categoryName) => {
     if (categoryFilter === categoryName) {
       setCategoryFilter(null);
@@ -741,6 +689,7 @@ const MainScreen = ({ onLogout, navigation }) => {
     }
   };
 
+  // Toggle book status
   const toggleBookStatus = (bookId) => {
     setBooks(books.map(book => 
       book.id === bookId 
@@ -749,18 +698,7 @@ const MainScreen = ({ onLogout, navigation }) => {
     ));
   };
 
-  const toggleFavorite = (bookId) => {
-    setBooks(books.map(book => 
-      book.id === bookId 
-        ? { ...book, isFavorite: !book.isFavorite } 
-        : book
-    ));
-  };
-
-  const deleteBook = (bookId) => {
-    setBooks(books.filter(book => book.id !== bookId));
-  };
-
+  // Pick image from gallery
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -907,7 +845,7 @@ const MainScreen = ({ onLogout, navigation }) => {
       <FlatList
         data={filteredBooks}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={styles.bookListItem}>
             <Image source={{ uri: item.cover }} style={styles.listBookCover} />
             <View style={styles.bookInfo}>
@@ -917,27 +855,15 @@ const MainScreen = ({ onLogout, navigation }) => {
                 <Text style={styles.listBookCategory}>{item.category}</Text>
               </View>
             </View>
-            <View style={styles.bookActions}>
-              <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-                <Icon 
-                  name={item.isFavorite ? "favorite" : "favorite-border"} 
-                  size={24} 
-                  color={item.isFavorite ? "#FB6340" : "#8898AA"} 
-                />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => toggleBookStatus(item.id)}
-                style={[
-                  styles.listStatusBadge, 
-                  { backgroundColor: item.status === 'Available' ? '#2DCE89' : '#FB6340' }
-                ]}
-              >
-                <Text style={styles.listStatusText}>{item.status}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteBook(item.id)}>
-                <Icon name="delete" size={24} color="#FB6340" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity 
+              onPress={() => toggleBookStatus(item.id)}
+              style={[
+                styles.listStatusBadge, 
+                { backgroundColor: item.status === 'Available' ? '#2DCE89' : '#FB6340' }
+              ]}
+            >
+              <Text style={styles.listStatusText}>{item.status}</Text>
+            </TouchableOpacity>
           </View>
         )}
         contentContainerStyle={styles.bookListContainer}
@@ -1082,7 +1008,7 @@ const MainScreen = ({ onLogout, navigation }) => {
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'books' && renderBooks()}
         {activeTab === 'users' && renderUsers()}
-        {activeTab === 'profile' && <ProfileScreen user={user} onLogout={onLogout} navigation={navigation} />}
+        {activeTab === 'profile' && <ProfileScreen user={user} onLogout={onLogout} />}
       </ScrollView>
 
       {/* Add Book Modal */}
@@ -1114,19 +1040,6 @@ const MainScreen = ({ onLogout, navigation }) => {
                 
                 <View style={styles.modalBody}>
                   <Animated.View entering={FadeInDown.delay(200)}>
-                    <TouchableOpacity onPress={pickImage} style={styles.coverImageContainer}>
-                      {newBook.cover ? (
-                        <Image source={{ uri: newBook.cover }} style={styles.coverImage} />
-                      ) : (
-                        <View style={styles.coverPlaceholder}>
-                          <Icon name="add-a-photo" size={40} color="#5E72E4" />
-                          <Text style={styles.coverText}>Add Book Cover</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  </Animated.View>
-                  
-                  <Animated.View entering={FadeInDown.delay(250)}>
                     <View style={styles.modalInputContainer}>
                       <Text style={styles.modalLabel}>Book Title *</Text>
                       <TextInput 
@@ -1138,7 +1051,7 @@ const MainScreen = ({ onLogout, navigation }) => {
                     </View>
                   </Animated.View>
                   
-                  <Animated.View entering={FadeInDown.delay(300)}>
+                  <Animated.View entering={FadeInDown.delay(250)}>
                     <View style={styles.modalInputContainer}>
                       <Text style={styles.modalLabel}>Author *</Text>
                       <TextInput 
@@ -1150,7 +1063,7 @@ const MainScreen = ({ onLogout, navigation }) => {
                     </View>
                   </Animated.View>
                   
-                  <Animated.View entering={FadeInDown.delay(350)}>
+                  <Animated.View entering={FadeInDown.delay(300)}>
                     <View style={styles.modalInputContainer}>
                       <Text style={styles.modalLabel}>Category *</Text>
                       <TouchableOpacity 
@@ -1170,7 +1083,7 @@ const MainScreen = ({ onLogout, navigation }) => {
                 </View>
                 
                 <View style={styles.modalFooter}>
-                  <Animated.View entering={FadeInDown.delay(400)}>
+                  <Animated.View entering={FadeInDown.delay(350)}>
                     <TouchableOpacity 
                       style={styles.cancelButton}
                       onPress={() => setAddBookModalVisible(false)}
@@ -1178,7 +1091,7 @@ const MainScreen = ({ onLogout, navigation }) => {
                       <Text style={styles.cancelButtonText}>Cancel</Text>
                     </TouchableOpacity>
                   </Animated.View>
-                  <Animated.View entering={FadeInDown.delay(450)}>
+                  <Animated.View entering={FadeInDown.delay(400)}>
                     <TouchableOpacity 
                       style={[styles.addBookButton, (!newBook.title || !newBook.author || !newBook.category) ? styles.disabledButton : null]}
                       onPress={handleAddBook}
@@ -1304,39 +1217,27 @@ const MainScreen = ({ onLogout, navigation }) => {
 const App = () => {
   const [authMode, setAuthMode] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activeScreen, setActiveScreen] = useState('main');
-  const [books, setBooks] = useState(INITIAL_BOOKS);
-  const [user, setUser] = useState(MOCK_PROFILE);
-
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setActiveScreen('main');
-  };
+  const [activeScreen, setActiveScreen] = useState('main'); // 'main' or 'feedback'
 
   return (
     <SafeAreaProvider>
       {isLoggedIn ? (
         activeScreen === 'feedback' ? (
           <FeedbackScreen navigation={{ goBack: () => setActiveScreen('main') }} />
-        ) : activeScreen === 'favorites' ? (
-          <FavoritesScreen books={books} navigation={{ goBack: () => setActiveScreen('main') }} />
         ) : (
           <MainScreen 
             onLogout={() => {
               setIsLoggedIn(false);
               setAuthMode(null);
             }} 
-            navigation={{ 
-              navigate: (screen) => setActiveScreen(screen),
-              goBack: () => setActiveScreen('main')
-            }}
+            navigation={{ navigate: (screen) => setActiveScreen(screen) }}
           />
         )
       ) : authMode ? (
         <AuthScreen 
           isLoginMode={authMode === 'login'} 
           onClose={() => setAuthMode(null)} 
-          onLoginSuccess={handleLoginSuccess} 
+          onLoginSuccess={() => setIsLoggedIn(true)} 
         />
       ) : (
         <HeroScreen 
@@ -1349,8 +1250,8 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-  // ... (keep all existing styles the same)
-    container: {
+  // Global Styles
+  container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
     alignItems: 'center',
@@ -2283,37 +2184,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#8898AA',
   },
-
-  coverImageContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  coverImage: {
-    width: 120,
-    height: 160,
-    borderRadius: 8,
-  },
-  coverPlaceholder: {
-    width: 120,
-    height: 160,
-    borderRadius: 8,
-    backgroundColor: '#F0F4FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#5E72E4',
-    borderStyle: 'dashed',
-  },
-  coverText: {
-    color: '#5E72E4',
-    marginTop: 10,
-    fontWeight: '500',
-  },
-  bookActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
 });
+
 
 export default App;
